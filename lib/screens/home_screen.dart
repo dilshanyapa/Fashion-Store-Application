@@ -121,7 +121,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
-            // --- SECTION TITLE ---
+   
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
               child: Row(
@@ -139,9 +139,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
-            // --- REUSABLE PRODUCT GRID ---
-        // --- REUSABLE PRODUCT GRID ---
-            // --- REUSABLE PRODUCT GRID ---
+
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -151,8 +149,7 @@ class HomeScreen extends StatelessWidget {
               mainAxisSpacing: 15,
               crossAxisSpacing: 15,
 
-              // මෙන්න මෙතනයි වෙනස තියෙන්නේ!
-              // ProductData එකේ තියෙන හැම item එකක්ම map කරලා Widget එකක් බවට පත් කරනවා.
+
               children: ProductData.allProducts.map((item) {
                 return GestureDetector(
                   onTap: () {
@@ -175,7 +172,7 @@ class HomeScreen extends StatelessWidget {
     ),
       ),
 
-      // 3. FIXED FOOTER NAVIGATION
+
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.cyan,
@@ -183,7 +180,7 @@ class HomeScreen extends StatelessWidget {
         showSelectedLabels: false,
         showUnselectedLabels: false,
 
-        // --- ADD THIS ONTAP SECTION ---
+
         onTap: (index) {
             if (index == 0) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
             if (index == 1) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ProductListScreen()));
@@ -202,7 +199,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Widget helper for circular categories
+
   Widget _buildCategoryItem(String title, String img, {bool isSelected = false}) {
     return Padding(
       padding: const EdgeInsets.only(right: 15),
@@ -224,7 +221,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// --- 4. REUSABLE PRODUCT CARD COMPONENT ---
+
 class ProductCard extends StatelessWidget {
   final String name;
   final String price;
