@@ -1,0 +1,25 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "fashion-app-7a0c8",
+          "appId": "1:955684673260:android:b44beed5da08f3b147f7c9",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "fashion-app-7a0c8",
+          "configurations": {
+            "android": "1:955684673260:android:b44beed5da08f3b147f7c9",
+            "ios": "1:955684673260:ios:cf7447d3c0bcb88d47f7c9",
+            "macos": "1:955684673260:ios:cf7447d3c0bcb88d47f7c9",
+            "web": "1:955684673260:web:3f629b89d5c97a4347f7c9",
+            "windows": "1:955684673260:web:1072e627ce3fc7b547f7c9"
+          }
+        }
+      }
+    }
+  }
+}

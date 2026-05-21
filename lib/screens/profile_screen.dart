@@ -7,6 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'checkout_screen.dart';
+import 'order_history_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -25,17 +27,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _nameController.text = user?.displayName ?? "";
   }
 
-  // නම Update කිරීම සඳහා වන Function එක
   Future<void> _updateName() async {
     try {
-      // 1. Firebase එකේ නම Update කරන්න
+    
       await user?.updateDisplayName(_nameController.text.trim());
       await user?.reload();
 
-      // 2. Dialog එක පමණක් වසන්න
+  
       if (mounted) {
         Navigator.of(context, rootNavigator: true).pop();
-        setState(() {}); // UI එක Refresh කරන්න
+        setState(() {}); 
         
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Profile Name Updated Successfully!")),
@@ -46,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // පින්තූරය Upload කිරීම සඳහා වන Function එක
+ 
   Future<void> _pickAndUploadImage() async {
     final ImagePicker picker = ImagePicker();
     
@@ -58,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       
       if (image == null) return;
 
-      // Loading Indicator පෙන්වීම
+      // Loading Indicator 
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -68,17 +69,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       File file = File(image.path);
       String uid = FirebaseAuth.instance.currentUser!.uid;
 
-      // Firebase Storage එකට පින්තූරය Upload කිරීම
+    
       Reference ref = FirebaseStorage.instance.ref().child('profile_pics/$uid.jpg');
       await ref.putFile(file);
       
-      // URL එක ලබාගෙන Profile එක Update කිරීම
+    
       String downloadURL = await ref.getDownloadURL();
       await FirebaseAuth.instance.currentUser!.updatePhotoURL(downloadURL);
       await FirebaseAuth.instance.currentUser!.reload();
       
       if (mounted) {
-        // Loading Dialog එක පමණක් වසා දමන්න (White screen වීම වැළැක්වීමට)
+        // Loading Dialog 
         Navigator.of(context, rootNavigator: true).pop();
         setState(() {}); 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -251,13 +252,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
+                  // 💡 1. Edit Profile Information 
                   GestureDetector(
                     onTap: _showEditNameDialog,
                     child: _buildProfileMenu(Icons.person_outline, "Edit Profile Information"),
                   ),
-                  _buildProfileMenu(Icons.history, "Order History"),
-                  _buildProfileMenu(Icons.location_on_outlined, "Saved Addresses"),
-                  _buildProfileMenu(Icons.account_balance_wallet_outlined, "Payment Methods"),
+
+                  // Order History 
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
+                  );
+                  },
+                    child: _buildProfileMenu(Icons.history, "Order History"),
+                  ),
+
+                  // 💡 3. Saved Addresses 
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const CheckoutScreen()), );
+                    },
+                    child: _buildProfileMenu(Icons.location_on_outlined, "Saved Addresses"),
+                  ),
+
+                  // 💡 4. Payment Methods 
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const CheckoutScreen()), );
+                    },
+                    child: _buildProfileMenu(Icons.account_balance_wallet_outlined, "Payment Methods"),
+                  ),
                   const SizedBox(height: 15),
                   GestureDetector(
                     onTap: () => _showLogoutConfirmation(context),

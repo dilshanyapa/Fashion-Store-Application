@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "955684673260",
+    "project_id": "fashion-app-7a0c8",
+    "storage_bucket": "fashion-app-7a0c8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955684673260:android:b44beed5da08f3b147f7c9",
+        "android_client_info": {
+          "package_name": "com.example.fashion_store"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAhpEbhBGqv_Mmg7yfxwzsmMDw1Nh_04I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

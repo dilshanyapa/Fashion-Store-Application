@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/product_model.dart';
 import 'cart_screen.dart';
+import '../data/product_data.dart'; 
+import '../utils/page_transitions.dart'; 
 
 class ProductDetailsScreen extends StatefulWidget {
   final Product product;
@@ -13,9 +15,16 @@ class ProductDetailsScreen extends StatefulWidget {
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   String selectedSize = 'M';
+  bool isFavorite = false;
 
   @override
   Widget build(BuildContext context) {
+    
+    final double productRating = widget.product.rating ?? 4.5;
+    final List<String> productSizes = widget.product.sizes.isEmpty 
+        ? ['S', 'M', 'L', 'XL'] 
+        : widget.product.sizes;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F7),
       appBar: AppBar(
@@ -30,8 +39,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CartScreen())),
-            icon: const Icon(Icons.shopping_bag_outlined, color: Color(0xFF008B9A)),
+            onPressed: () => Navigator.push(context, createSmoothRoute(const CartScreen())),
+            icon: const Icon(Icons.shopping_cart, color: Color(0xFF008B9A)),
           ),
         ],
       ),
@@ -42,8 +51,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // PRODUCT IMAGE
-                Image.asset(widget.product.image, height: 400, width: double.infinity, fit: BoxFit.cover),
+                
+                Image.network(
+                  widget.product.image, 
+                  height: 400, 
+                  width: double.infinity, 
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                   
+                    return Image.asset('assets/images/user_avatar.png', height: 400, width: double.infinity, fit: BoxFit.cover);
+                  },
+                ),
 
                 Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -59,7 +77,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             children: [
                               const Icon(Icons.star, color: Colors.black87, size: 16),
                               const SizedBox(width: 4),
-                              Text("${widget.product.rating}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text("$productRating", style: const TextStyle(fontWeight: FontWeight.bold)),
                             ],
                           ),
                         ],
@@ -69,10 +87,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          Text("\$${widget.product.price}",
+                          
+                          Text("LKR ${widget.product.price}",
                               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF008B9A))),
                           const SizedBox(width: 10),
-                          Text("\$${widget.product.originalPrice}",
+                          Text("LKR ${widget.product.originalPrice}",
                               style: const TextStyle(fontSize: 14, color: Colors.grey, decoration: TextDecoration.lineThrough)),
                         ],
                       ),
@@ -85,7 +104,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       const SizedBox(height: 15),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: widget.product.sizes.map((size) => _buildSizeButton(size)).toList(),
+                       
+                        children: productSizes.map((size) => _buildSizeButton(size)).toList(),
                       ),
                     ],
                   ),
@@ -117,19 +137,88 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+void _addToCartLogic() {
+    int index = ProductData.globalCartItems.indexWhere((item) => 
+        item['name'] == widget.product.name && item['size'] == selectedSize);
+
+    if (index != -1) {
+      ProductData.globalCartItems[index]['quantity']++;
+    } else {
+      ProductData.globalCartItems.add({
+        "name": widget.product.name,
+        "price": double.tryParse(widget.product.price.replaceAll(',', '')) ?? 0.0,
+        "size": selectedSize,
+        "color": "Standard",
+        "quantity": 1,
+        "image": widget.product.image
+      });
+    }
+  }
+
+ 
   Widget _buildAddToCartBar() {
     return Container(
-      height: 80,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      color: Colors.white.withOpacity(0.9),
+      height: 85,
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      color: Colors.white.withOpacity(0.95),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(border: Border.all(color: Colors.grey[300]!), borderRadius: BorderRadius.circular(15)),
-            child: const Icon(Icons.favorite_border),
+          // FAVORITE BUTTON
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                isFavorite = !isFavorite;
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey[300]!), 
+                borderRadius: BorderRadius.circular(15),
+                color: isFavorite ? Colors.red.withOpacity(0.1) : Colors.transparent,
+              ),
+              child: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite ? Colors.red : Colors.black87,
+              ),
+            ),
           ),
-          const SizedBox(width: 15),
+          const SizedBox(width: 10),
+
+          // ADD TO CART BUTTON
+          Expanded(
+            child: Container(
+              height: 55,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: const Color(0xFF008B9A), width: 1.5),
+                color: Colors.white, 
+              ),
+              child: MaterialButton(
+                onPressed: () {
+                  setState(() {
+                    _addToCartLogic(); 
+                  });
+
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("${widget.product.name} ($selectedSize) Added to Bag!"),
+                      backgroundColor: Colors.teal,
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+                child: const Text(
+                  "ADD TO CART", 
+                  style: TextStyle(color: Color(0xFF008B9A), fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+
+          // BUY NOW BUTTON 
           Expanded(
             child: Container(
               height: 55,
@@ -139,12 +228,20 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               ),
               child: MaterialButton(
                 onPressed: () {
+                  setState(() {
+                    _addToCartLogic(); 
+                  });
+
+               
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const CartScreen()),
-                      );
+                    context,
+                    MaterialPageRoute(builder: (context) => const CartScreen()),
+                  );
                 },
-                child: const Text("ADD TO CART", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  "BUY NOW", 
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                ),
               ),
             ),
           )

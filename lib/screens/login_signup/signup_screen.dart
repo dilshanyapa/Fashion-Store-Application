@@ -26,14 +26,14 @@ class _SignupScreenState extends State<SignupScreen> {
 
   void _onSignupButtonPressed() async {
   if (_formKey.currentState!.validate()) {
-    // 1. Passwords match වෙනවද කියලා බලනවා
+
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Passwords do not match!')),
       );
       return;
     }
-    // 1. Loading පෙන්වීම
+  
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -41,24 +41,23 @@ class _SignupScreenState extends State<SignupScreen> {
     );
 
     try {
-      // 2. Firebase එකේ Account එක හදනවා
+
       User? user = await _authService.signUp(
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
 
       if (user != null) {
-        // 3. මෙන්න මෙතැනදී තමයි නම Firebase එකට ඇතුළත් කරන්නේ
+
         await user.updateDisplayName(_nameController.text.trim());
-        await user.reload(); // දත්ත Update වූ බව සහතික කිරීමට
+        await user.reload(); 
 
-        if (mounted) Navigator.pop(context); // Loading එක වහන්න
-
+        if (mounted) Navigator.pop(context); 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Account Created Successfully!')),
         );
 
-        // 4. සාර්ථක නම් Home Screen එකට යන්න
+    
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -76,7 +75,7 @@ class _SignupScreenState extends State<SignupScreen> {
       print("Error during signup: $e");
     }
 
-    // 2. Loading පෙන්වනවා
+  
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -84,17 +83,17 @@ class _SignupScreenState extends State<SignupScreen> {
     );
 
     try {
-      // 3. AuthService එක පාවිච්චි කරලා Register කරනවා
+
       User? user = await _authService.signUp(
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
 
-      // Loading එක වහනවා
+  
       Navigator.pop(context);
 
       if (user != null) {
-        // සාර්ථක නම් Home එකට යන්න
+  
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Account Created Successfully!')),
         );

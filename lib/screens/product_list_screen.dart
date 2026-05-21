@@ -4,6 +4,7 @@ import 'profile_screen.dart';
 import 'cart_screen.dart';
 import 'product_details.dart';
 import '../data/product_data.dart';
+import '../models/product_model.dart'; 
 
 class ProductListScreen extends StatelessWidget {
   const ProductListScreen({super.key});
@@ -31,8 +32,14 @@ class ProductListScreen extends StatelessWidget {
         ],
       ),
 
-      body: SingleChildScrollView(
-        child: Padding(
+      body: RefreshIndicator(
+        color: Colors.teal,
+        backgroundColor: Colors.white, 
+        onRefresh: () async {
+          await Future.delayed(const Duration(seconds: 1));
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(), 
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,7 +48,6 @@ class ProductListScreen extends StatelessWidget {
               const Text("EXPLORE", style: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold, fontSize: 12)),
               const Text("Catalog", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
-
 
               Row(
                 children: [
@@ -52,18 +58,40 @@ class ProductListScreen extends StatelessWidget {
               ),
               const SizedBox(height: 25),
 
+              
+              StreamBuilder<List<Product>>(
+                stream: ProductData.getFirebaseProducts(), 
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: CircularProgressIndicator(color: Colors.teal),
+                    ));
+                  }
 
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                childAspectRatio: 0.6,
-                mainAxisSpacing: 20,
-                crossAxisSpacing: 15,
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text("No Internet Connection"),
+                    ));
+                  }
 
-                children: ProductData.allProducts.map((item) {
-                  return ProductItem(product: item);
-                }).toList(),
+                 
+                  List<Product> firebaseProducts = snapshot.data!;
+
+                  return GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.6,
+                    mainAxisSpacing: 20,
+                    crossAxisSpacing: 15,
+                    
+                    children: firebaseProducts.map((item) {
+                      return ProductItem(product: item);
+                    }).toList(),
+                  );
+                },
               ),
               const SizedBox(height: 20),
             ],
@@ -120,7 +148,11 @@ class ProductItem extends StatelessWidget {
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
-                    image: DecorationImage(image: AssetImage(product.image), fit: BoxFit.cover),
+                    
+                    image: DecorationImage(
+                      image: NetworkImage(product.image), 
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 const Positioned(top: 10, right: 10, child: CircleAvatar(backgroundColor: Colors.white70, radius: 15, child: Icon(Icons.favorite_border, size: 18))),

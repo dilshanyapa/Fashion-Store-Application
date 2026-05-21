@@ -3,6 +3,7 @@ import 'home_screen.dart';
 import 'product_list_screen.dart';
 import 'profile_screen.dart';
 import 'checkout_screen.dart';
+import '../data/product_data.dart'; 
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -12,28 +13,11 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  List<Map<String, dynamic>> cartItems = [
-    {
-      "name": "POLO T-shirt",
-      "price": 245.00,
-      "size": "L",
-      "color": "Ivory",
-      "quantity": 1,
-      "image": "assets/images/polo.jpg"
-    },
-    {
-      "name": "Atelier Trench Coat",
-      "price": 189.00,
-      "size": "M",
-      "color": "White",
-      "quantity": 1,
-      "image": "assets/images/img.png"
-    },
-  ];
 
-  double shipping = 15.00;
-  double discount = 00.00;
+  List<Map<String, dynamic>> get cartItems => ProductData.globalCartItems;
 
+  double shipping = 150.00; 
+  double discount = 0.00;
 
   double get subtotal => cartItems.fold(0, (sum, item) => sum + (item['price'] * item['quantity']));
   double get total => (subtotal + shipping) - discount;
@@ -48,10 +32,7 @@ class _CartScreenState extends State<CartScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF008B9A)),
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
-                );
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
           },
         ),
         title: const Text(
@@ -87,29 +68,29 @@ class _CartScreenState extends State<CartScreen> {
               const SizedBox(height: 20),
 
               cartItems.isEmpty
-                  ? const Center(child: Text("Your bag is empty"))
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 50),
+                        child: Text("Your bag is empty", style: TextStyle(fontSize: 16, color: Colors.grey)),
+                      ),
+                    )
                   : Column(
-                children: cartItems.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  var item = entry.value;
-                  return _buildCartItem(item, index);
-                }).toList(),
-              ),
+                      children: cartItems.asMap().entries.map((entry) {
+                        int index = entry.key;
+                        var item = entry.value;
+                        return _buildCartItem(item, index);
+                      }).toList(),
+                    ),
 
               const SizedBox(height: 30),
-
               _buildOrderSummary(),
-
               const SizedBox(height: 30),
-
               _buildCheckoutButton(),
               const SizedBox(height: 20),
             ],
           ),
         ),
       ),
-
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 2, 
         type: BottomNavigationBarType.fixed,
@@ -144,11 +125,17 @@ class _CartScreenState extends State<CartScreen> {
       ),
       child: Row(
         children: [
-          // Item Image
+
           ClipRRect(
             borderRadius: BorderRadius.circular(15),
-            child: Image.asset(item['image'], width: 80, height: 100, fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(width: 80, height: 100, color: Colors.grey[200]),
+            child: Image.network(
+              item['image'], 
+              width: 80, height: 100, fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                width: 80, height: 100, 
+                color: Colors.grey[200],
+                child: const Icon(Icons.image, color: Colors.grey),
+              ),
             ),
           ),
           const SizedBox(width: 15),
@@ -160,9 +147,11 @@ class _CartScreenState extends State<CartScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(item['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    Expanded(
+                      child: Text(item['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    ),
                     IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.grey, size: 20),
+                      icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
                       onPressed: () => setState(() => cartItems.removeAt(index)),
                     )
                   ],
@@ -172,7 +161,8 @@ class _CartScreenState extends State<CartScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("\$${item['price']}", style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF008B9A))),
+
+                    Text("LKR ${item['price']}", style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF008B9A))),
                     // Quantity Selector
                     Container(
                       decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(10)),
@@ -202,7 +192,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  //ORDER SUMMARY WIDGET
+  // ORDER SUMMARY WIDGET
   Widget _buildOrderSummary() {
     return Container(
       padding: const EdgeInsets.all(25),
@@ -215,15 +205,16 @@ class _CartScreenState extends State<CartScreen> {
         children: [
           const Text("ORDER SUMMARY", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1)),
           const SizedBox(height: 20),
-          _summaryRow("Subtotal", "\$${subtotal.toStringAsFixed(2)}"),
-          _summaryRow("Shipping", "\$${shipping.toStringAsFixed(2)}"),
-          _summaryRow("Discount", "-\$${discount.toStringAsFixed(2)}", isDiscount: true),
+        
+          _summaryRow("Subtotal", "LKR ${subtotal.toStringAsFixed(2)}"),
+          _summaryRow("Shipping", "LKR ${shipping.toStringAsFixed(2)}"),
+          _summaryRow("Discount", "-LKR ${discount.toStringAsFixed(2)}", isDiscount: true),
           const Divider(height: 30),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text("Total", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-              Text("\$${total.toStringAsFixed(2)}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Color(0xFF008B9A))),
+              Text("LKR ${total.toStringAsFixed(2)}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Color(0xFF008B9A))),
             ],
           )
         ],
@@ -254,10 +245,28 @@ class _CartScreenState extends State<CartScreen> {
       ),
       child: MaterialButton(
         onPressed: () {
-          Navigator.push(
+
+          if (cartItems.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.white),
+                    SizedBox(width: 10),
+                    Text("Your bag is empty! Please add products before checking out.", style: TextStyle(fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                backgroundColor: Colors.redAccent,
+                duration: Duration(seconds: 3),
+              ),
+            );
+          } else {
+   
+            Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const CheckoutScreen()),
-              );
+            );
+          }
         },
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,

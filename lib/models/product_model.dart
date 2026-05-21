@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../screens/home_screen.dart'; 
 
 class AuthService {
-  // This function handles the "Work"
+
   static Future<void> handleLoginLogic(BuildContext context, Function(bool) setLoading) async {
 
     setLoading(true);

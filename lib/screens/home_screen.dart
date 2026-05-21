@@ -4,16 +4,31 @@ import 'profile_screen.dart';
 import 'cart_screen.dart';
 import 'product_details.dart';
 import '../data/product_data.dart';
+import '../models/product_model.dart'; 
+import '../utils/page_transitions.dart'; 
+import '../models/search_model.dart';
 
-
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F7),
-
 
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -29,7 +44,13 @@ class HomeScreen extends StatelessWidget {
             color: Colors.grey[200],
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const TextField(
+          child: TextField(
+            controller: _searchController,
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value.trim(); 
+              });
+            },
             decoration: InputDecoration(
               hintText: "Search Here",
               hintStyle: TextStyle(fontSize: 14),
@@ -47,7 +68,7 @@ class HomeScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const CartScreen()),
+                    createSmoothRoute(const CartScreen()),
                   );
                 },
                 icon: const Icon(Icons.shopping_cart, color: Colors.black),
@@ -67,31 +88,38 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
 
+    body: RefreshIndicator(
+        color: Colors.cyan, 
+        backgroundColor: Colors.white,
+        onRefresh: () async {
 
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 15),
+          await Future.delayed(const Duration(seconds: 1));
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(), 
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 15),
 
-            Center(
-              child: SizedBox(
-                height: 100,
-                child: ListView(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  children: [
-                    _buildCategoryItem("NEW IN", 'assets/images/new.png', isSelected: true),
-                    _buildCategoryItem("MEN", 'assets/images/men.png'),
-                    _buildCategoryItem("WOMEN", 'assets/images/woman.png'),
-                    _buildCategoryItem("ACCESSORIES", 'assets/images/acc.png'),
-                  ],
+              Center(
+                child: SizedBox(
+                  height: 100,
+                  child: ListView(
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    children: [
+                      _buildCategoryItem("NEW IN", 'assets/images/new.png', isSelected: true),
+                      _buildCategoryItem("MEN", 'assets/images/men.png'),
+                      _buildCategoryItem("WOMEN", 'assets/images/woman.png'),
+                      _buildCategoryItem("ACCESSORIES", 'assets/images/acc.png'),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            Padding(
+              Padding(
               padding: const EdgeInsets.all(15.0),
               child: Container(
                 height: 180,
@@ -111,73 +139,132 @@ class HomeScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text("COLLECTION 2026", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                          const Text("Elevate Your\nStyle Canvas.", style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                          const Text(
+                            "COLLECTION 2026", 
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                          const Text(
+                            "Elevate Your\nStyle Canvas.", 
+                            style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
                           const SizedBox(height: 10),
                           ElevatedButton(
                             onPressed: () {},
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan, shape: StadiumBorder()),
-                            child: const Text("Shop Now", style: TextStyle(color: Colors.white)),
-                          )
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.cyan, 
+                              shape: const StadiumBorder(),
+                            ),
+                            child: const Text(
+                              "Shop Now", 
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
                         ],
                       ),
-                    )
+                    ), // Positioned
+                  ],
+                ), // Stack
+              ), // Container
+            ), // Padding
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Curated For You", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text("Bespoke selections from our atelier", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      ],
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ProductListScreen()),
+                        );
+                      }, 
+                      child: const Text("View All", style: TextStyle(color: Colors.cyan)),
+                    ),
                   ],
                 ),
               ),
-            ),
-
-   
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Curated For You", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      Text("Bespoke selections from our atelier", style: TextStyle(fontSize: 12, color: Colors.grey)),
-                    ],
-                  ),
-                  TextButton(onPressed: () {}, child: const Text("View All", style: TextStyle(color: Colors.cyan))),
-                ],
-              ),
-            ),
 
 
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              padding: const EdgeInsets.all(15),
-              childAspectRatio: 0.7,
-              mainAxisSpacing: 15,
-              crossAxisSpacing: 15,
-
-
-              children: ProductData.allProducts.map((item) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductDetailsScreen(product: item),
+              StreamBuilder<List<Product>>(
+                stream: ProductData.getFirebaseProducts(), 
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(30.0),
+                        child: CircularProgressIndicator(color: Colors.cyan),
                       ),
                     );
-                  },
-                  child: ProductCard(
-                    name: item.name,
-                    price: item.price,
-                    image: item.image,
-                  ),
-                );
-              }).toList(),
-            ),
-      ],
-    ),
-      ),
+                  }
 
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(30.0),
+                        child: Text("No Internet Connection"),
+                      ),
+                    );
+                  }
+
+                 
+                  List<Product> allProducts = snapshot.data!;
+
+          
+                  List<Product> homeProducts = ProductSearchController.filterProducts(
+                    allProducts: allProducts,
+                    query: _searchQuery,
+                  );
+
+                  if (homeProducts.isEmpty) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(40.0),
+                        child: Text("No products found!", style: TextStyle(color: Colors.grey)),
+                      ),
+                    );
+                  }
+
+                  return GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    padding: const EdgeInsets.all(15),
+                    childAspectRatio: 0.7,
+                    mainAxisSpacing: 15,
+                    crossAxisSpacing: 15,
+                  
+                    children: homeProducts.map((item) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductDetailsScreen(product: item),
+                            ),
+                          );
+                        },
+                        child: ProductCard(
+                          name: item.name,
+                          price: item.price,
+                          image: item.image,
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
 
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
@@ -185,16 +272,12 @@ class HomeScreen extends StatelessWidget {
         unselectedItemColor: Colors.grey,
         showSelectedLabels: false,
         showUnselectedLabels: false,
-
-
         onTap: (index) {
-            if (index == 0) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-            if (index == 1) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ProductListScreen()));
-            if (index == 2) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CartScreen()));
-            if (index == 3) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
+          if (index == 0) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+          if (index == 1) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ProductListScreen()));
+          if (index == 2) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CartScreen()));
+          if (index == 3) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
         },
-
-
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.dashboard_outlined), label: ""),
@@ -204,7 +287,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
 
   Widget _buildCategoryItem(String title, String img, {bool isSelected = false}) {
     return Padding(
@@ -227,7 +309,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-
 class ProductCard extends StatelessWidget {
   final String name;
   final String price;
@@ -246,7 +327,11 @@ class ProductCard extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  image: DecorationImage(image: AssetImage(image), fit: BoxFit.cover),
+                 
+                  image: DecorationImage(
+                    image: NetworkImage(image), 
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               const Positioned(
@@ -257,7 +342,7 @@ class ProductCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+        Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

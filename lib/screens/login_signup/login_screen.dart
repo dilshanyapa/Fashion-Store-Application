@@ -28,35 +28,35 @@ class _LoginScreenState extends State<LoginScreen> {
   void _onLoginButtonPressed() async {
   if (_formKey.currentState!.validate()) {
     
-    // 1. Loading පෙන්වීම
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
-    // 2. AuthService එකට දත්ත යැවීම
+
     User? user = await _authService.login(
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
 
-    // 3. Loading එක වසා දැමීම
+
     if (mounted) Navigator.pop(context);
 
     if (user != null) {
       print("✅ Login Successful!");
       
-      // 4. වැදගත්ම කොටස: සාර්ථක නම් Home Screen එකට යන්න
+
       if (mounted) {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
-          (route) => false, // පරණ screens අයින් කරනවා (Back යන්න බැරි වෙන්න)
+          (route) => false, 
         );
       }
     } else {
-      // ලොග් වීම අසාර්ථක නම්
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Invalid Email or Password!')),
@@ -139,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               const SizedBox(height: 10),
 
 
-                              // EMAIL FIELD
+     
                               _buildInputFieldWithLabel(
                                 controller: _emailController,
                                 label: 'EMAIL ADDRESS',
