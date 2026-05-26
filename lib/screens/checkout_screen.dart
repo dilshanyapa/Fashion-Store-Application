@@ -28,7 +28,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   List<Map<String, dynamic>> get checkoutItems => ProductData.globalCartItems;
 
-  double shippingFee = 150.00; // LKR ගාස්තුව
+  double shippingFee = 150.00; 
   double discountAmount = 0.00;
 
 
