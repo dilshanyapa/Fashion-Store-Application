@@ -23,9 +23,9 @@ As per the strict coursework constraints, you must manually populate the databas
 1. Create a root collection exactly named: **`products`**
 2. Ingest at least **3 to 5 item documents** into the `products` collection with the following exact field mapping keys (Case-Sensitive):
    * `name` (String) — e.g., `"Polo T-Shirt"`
-   * `price` (String) — e.g., `"1900"` *(Must be stored as a string; mapped automatically inside the code)*
+   * `price` (double) — e.g., `"1900"` 
    * `originalPrice` (String) — e.g., `"2500"`
-   * `image` (String) — A valid HTTPS web resource URL pointing to the product graphic asset
+   * `imageUrl` (String) — A valid HTTPS web resource URL pointing to the product graphic asset
    * `description` (String) — Detailed garment/apparel features and sizing notes
 
 3. Create another separate root collection exactly named: **`orders`**
